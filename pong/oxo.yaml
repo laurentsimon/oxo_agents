@@ -1,0 +1,32 @@
+# https://github.com/Ostorlab/oxo/blob/main/src/ostorlab/agent/schema/agent_schema.json
+kind: Agent
+name: pong_agent
+version: 0.0.1
+description: Agent responsible for ponging.
+in_selectors:
+  # Those are either be:
+  # 1) from the command line - run `oxo scan run –-help` -> file, ip, android-apk, etc.
+  # 2) other agents' selectors
+  - v3.asset.file
+  - v3.asset.ip
+  - v3.control
+out_selectors:
+  - v3.report.vulnerability
+  - v3.control
+restart_policy: on-failure
+args:
+  - name: "arg1"
+    type: "boolean"
+    description: "First argument."
+    value: false
+  - name: "arg2"
+    type: "string"
+    description: "Second argument."
+    value: "default_second"
+  - name: "log_level"
+    type: "string"
+    description: "Log level."
+    value: "INFO"
+docker_file_path : Dockerfile
+docker_build_root : .
+#image: laurentsimon/oxo_ping_agent
