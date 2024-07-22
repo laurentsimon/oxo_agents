@@ -29,7 +29,7 @@ def create_invalid_selector_message() -> msg.Message:
 def create_empty_name_message() -> msg.Message:
     """Creates a dummy message of type v3.asset.domain_name to be used by the agent for testing purposes.
     """
-    selector = "v3.asset.domain_name.domain_name"
+    selector = "v3.asset.domain_name.dns_record"
     msg_data = {"name": ""}
     return msg.Message.from_data(selector, data=msg_data)
 
