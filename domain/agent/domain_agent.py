@@ -29,7 +29,7 @@ class DomainAgent(
     """Domain agent."""
     @staticmethod
     def _VULN_TITLE(name: str):
-        return f"yt-sec: Domain {name}"
+        return f"[yt-sec][domain]: Domain {name}"
     @staticmethod
     def _VULN_DETAIL(name: str):
         return f"We detected a DNS resolution request to {name}"
