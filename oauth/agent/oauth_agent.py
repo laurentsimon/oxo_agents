@@ -1,6 +1,7 @@
 """Domain agent implementation"""
 
 import logging
+import enum
 from rich import logging as rich_logging
 import time
 import struct
@@ -26,18 +27,29 @@ class OAuthAgent(
     agent.Agent,
     agent_report_vulnerability_mixin.AgentReportVulnMixin,
 ):
-    """Domain agent."""
+    """OAuth agent."""
+    class TokenType(enum.Enum):
+        NONE = enum.auto()
+        ACCESS = enum.auto()
+        REFRESH = enum.auto()
+    class LocationType(enum.Enum):
+        NONE = enum.auto()
+        CONTENT = enum.auto()
+        HEADER = enum.auto()
     @staticmethod
-    def _VULN_TITLE(tok_type: str):
-        return f"[yt-sec][oauth]: {tok_type.capitalize()} OAuth to untrusted domain"
+    def _VULN_TITLE(tok_type:TokenType):
+        return f"[yt-sec][oauth]: {tok_type.name} OAuth to untrusted domain"
     @staticmethod
-    def _VULN_DETAIL(tok_type: str, host: str, headers: list[dict[str, str]]):
-        hdrs = ""
-        for h in headers:
-            name = h["name"].decode()
-            value = h["value"].decode()
-            hdrs += f"{name}: {value}\n"
-        return f"{tok_type.capitalize()} OAuth token:\nHost: {host}\nHeaders:\n{hdrs}"
+    def _VULN_DETAIL(tok_type:TokenType, host:str, headers:list[dict[str, str]] = None, content:str = None):
+        not_recorded = "--not recorded--"
+        hdrs = None
+        if headers is not None:
+            hdrs = ""
+            for h in headers:
+                name = h["name"].decode()
+                value = h["value"].decode()
+                hdrs += f"{name}: {value}\n"
+        return f"{tok_type.name} OAuth token:\nHost: {host}\nHeaders:\n{hdrs if hdrs is not None else not_recorded}\nontent:{content if content is not None else not_recorded}"
     @staticmethod
     def _VULN_RISK():
         return agent_report_vulnerability_mixin.RiskRating.HIGH
@@ -48,15 +60,8 @@ class OAuthAgent(
     def _ALLOWED_DOMAINS():
         return ["google.com", "googleapis.com", "youtube.com", "googleusercontent.com"]
     @staticmethod
-    def _REFRESH_TYPE():
-        return "refresh"
-    @staticmethod
-    def _ACCESS_TYPE():
-        return "access"
-    @staticmethod
-    def _DNA(tok_type: str, host: str):
-        return f"{tok_type}|{host}"
-
+    def _DNA(tok_type:TokenType, host:str, location:LocationType):
+        return f"{tok_type.name}|{host}|{location.name}"
 
     # NOTE: We must follow Agent's __init__() declaration.
     def __init__(
@@ -103,28 +108,11 @@ class OAuthAgent(
     def _trusted_host(self, host: str) -> bool:
         return self._allowed_host(host) or self._allowed_domain(host)
 
-    def _process_http_request(self, message: m.Message):
-        if "host" not in message.data:
-            raise ValueError("no host in request")
-        host = message.data["host"]
+    def _oauth_type(self, value:str) -> TokenType:
+        return OAuthAgent.TokenType.REFRESH if "1/" in value else OAuthAgent.TokenType.ACCESS if "ya29." in value else OAuthAgent.TokenType.NONE
 
-        # Check the host.
-        if self._trusted_host(host):
-            return
-
-        # Get the Authoriation header.
-        headers = message.data.get("headers")
-        for header in headers:
-            name = header["name"].decode()
-            value = header["value"].decode()
-            if name != "Authorization":
-                continue
-            tok_type = OAuthAgent._REFRESH_TYPE() if "1/" in value else OAuthAgent._ACCESS_TYPE() if "ya29." in value else None
-            if tok_type is None:
-                continue
-
-            # We found some tokens.
-            kb_entry = kb.Entry(title=OAuthAgent._VULN_TITLE(tok_type),
+    def _create_vuln(self, tok_type:TokenType, host:str, headers:list[dict[str, str]] = None, content:str = None):
+        kb_entry = kb.Entry(title=OAuthAgent._VULN_TITLE(tok_type),
                         risk_rating=OAuthAgent._VULN_RISK().name,
                         short_description='short_description',
                         description='description',
@@ -136,12 +124,41 @@ class OAuthAgent(
                         targeted_by_malware = False,
                         targeted_by_ransomware = False,
                         targeted_by_nation_state = False)
-            self.report_vulnerability(
-                risk_rating=agent_report_vulnerability_mixin.RiskRating.HIGH,
-                technical_detail=OAuthAgent._VULN_DETAIL(tok_type, host, headers),
-                dna=OAuthAgent._DNA(tok_type, host),
-                entry=kb_entry,
-            )        
+        self.report_vulnerability(
+            risk_rating=agent_report_vulnerability_mixin.RiskRating.HIGH,
+            technical_detail=OAuthAgent._VULN_DETAIL(tok_type, host, headers, content),
+            dna=OAuthAgent._DNA(tok_type, host, OAuthAgent.LocationType.HEADER if content is None else OAuthAgent.LocationType.CONTENT),
+            entry=kb_entry,
+        )
+
+    def _process_headers(self, host:str, headers_:list[dict[str, str]]):
+        for header in headers_:
+            name = header["name"].decode()
+            value = header["value"].decode()
+            if name != "Authorization":
+                continue
+            tok_type = self._oauth_type(value)
+            if tok_type == OAuthAgent.TokenType.NONE:
+                continue
+            self._create_vuln(tok_type, host, headers=headers_)
+
+    def _process_content(self, host:str, content_:str):
+        tok_type = self._oauth_type(content_)
+        if tok_type == OAuthAgent.TokenType.NONE:
+            return
+        self._create_vuln(tok_type, host, content=content_)
+
+    def _process_http_request(self, message: m.Message):
+        if "host" not in message.data:
+            raise ValueError("no host in request")
+        host = message.data["host"]
+
+        # Check the host.
+        if self._trusted_host(host):
+            return
+        self._process_headers(host, message.data.get("headers"))
+        self._process_content(host, message.data.get("content").decode())
+        
         
 if __name__ == "__main__":
     logger.info("starting OAuth agent ...")
