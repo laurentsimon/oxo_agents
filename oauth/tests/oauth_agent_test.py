@@ -108,6 +108,28 @@ def testOAuthAgent_whenAccessTokenInContentToUntrusted_emitsVulnerabilityReport(
 
     _helperValidate(agent_mock[0], oauth_agent, tok_type, host, loc, None, content)
 
+def testOAuthAgent_whenAccessTokenInContentAsHostToTrusted_emitsVulnerabilityReport(
+        mocker: plugin.MockerFixture,
+        agent_mock: list[msg.Message],
+        oauth_agent: oauth_agent.OAuthAgent,
+        access_trusted_content_as_host_message: msg.Message,
+) -> None:
+    msg = access_trusted_content_as_host_message
+    oauth_agent.process(msg)
+
+    assert len(agent_mock) == 0
+
+def testOAuthAgent_whenAccessTokenInContentAsHostToTrusted_emitsVulnerabilityReport(
+        mocker: plugin.MockerFixture,
+        agent_mock: list[msg.Message],
+        oauth_agent: oauth_agent.OAuthAgent,
+        access_trusted_content_message: msg.Message,
+) -> None:
+    msg = access_trusted_content_message
+    oauth_agent.process(msg)
+
+    assert len(agent_mock) == 0
+
 def testOAuthAgent_whenRefreshTokenInHeadersToUntrusted_emitsVulnerabilityReport(
         mocker: plugin.MockerFixture,
         agent_mock: list[msg.Message],
@@ -125,6 +147,17 @@ def testOAuthAgent_whenRefreshTokenInHeadersToUntrusted_emitsVulnerabilityReport
     loc = oauth_agent.LocationType.HEADER
 
     _helperValidate(agent_mock[0], oauth_agent, tok_type, host, loc, headers, None)
+
+def testOAuthAgent_whenAccessTokenInHeadersAsHostToTrusted_noEmits(
+        mocker: plugin.MockerFixture,
+        agent_mock: list[msg.Message],
+        oauth_agent: oauth_agent.OAuthAgent,
+        access_trusted_as_host_message: msg.Message,
+) -> None:
+    msg = access_trusted_as_host_message
+    oauth_agent.process(msg)
+
+    assert len(agent_mock) == 0
 
 def testOAuthAgent_whenAccessTokenInHeadersToTrusted_noEmits(
         mocker: plugin.MockerFixture,
