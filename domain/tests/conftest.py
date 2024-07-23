@@ -9,20 +9,36 @@ from ostorlab.runtimes import definitions as runtime_definitions
 
 from agent import domain_agent
 
-@pytest.fixture(name="untrusted_message")
-def create_untrusted_message() -> msg.Message:
+@pytest.fixture(name="untrusted_host_message")
+def create_untrusted_host_message() -> msg.Message:
     """Creates a dummy message of type v3.asset.domain_name to be used by the agent for testing purposes.
     """
     selector = "v3.asset.domain_name"
     msg_data = {"name": "www.test.com"}
     return msg.Message.from_data(selector, data=msg_data)
 
-@pytest.fixture(name="trusted_message")
-def create_trusted_message() -> msg.Message:
+@pytest.fixture(name="trusted_domain_message")
+def create_trusted_domain_message() -> msg.Message:
     """Creates a dummy message of type v3.asset.domain_name to be used by the agent for testing purposes.
     """
     selector = "v3.asset.domain_name"
-    msg_data = {"name": "www.googleapis.com"}
+    msg_data = {"name": "any.googleapis.com"}
+    return msg.Message.from_data(selector, data=msg_data)
+
+@pytest.fixture(name="trusted_domain_as_host_message")
+def create_trusted_domain_as_host_message() -> msg.Message:
+    """Creates a dummy message of type v3.asset.domain_name to be used by the agent for testing purposes.
+    """
+    selector = "v3.asset.domain_name"
+    msg_data = {"name": "googleapis.com"}
+    return msg.Message.from_data(selector, data=msg_data)
+
+@pytest.fixture(name="untrusted_domain_message")
+def create_untrusted_domain_message() -> msg.Message:
+    """Creates a dummy message of type v3.asset.domain_name to be used by the agent for testing purposes.
+    """
+    selector = "v3.asset.domain_name"
+    msg_data = {"name": "any.googleapis.com.not"}
     return msg.Message.from_data(selector, data=msg_data)
 
 @pytest.fixture(name="invalid_selector_message")

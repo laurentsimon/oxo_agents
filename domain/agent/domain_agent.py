@@ -38,7 +38,10 @@ class DomainAgent(
         return agent_report_vulnerability_mixin.RiskRating.INFO
     @staticmethod
     def _ALLOWED_HOSTS():
-        return ["www.googleapis.com"]
+        return []
+    @staticmethod
+    def _ALLOWED_DOMAINS():
+        return ["google.com", "googleapis.com", "youtube.com", "googleusercontent.com"]
 
     # NOTE: We must follow Agent's __init__() declaration.
     def __init__(
@@ -71,11 +74,25 @@ class DomainAgent(
         self._process_domain_name(message.data.get("name"))
         del message
 
+    def _allowed_domain(self, host: str) -> bool:
+        for allowed in DomainAgent._ALLOWED_DOMAINS():
+            if host == allowed:
+                return True
+            if host.endswith(f".{allowed}"):
+                return True
+        return False
+
+    def _allowed_host(self, host: str) -> bool:
+        return host in DomainAgent._ALLOWED_HOSTS()
+
+    def _trusted_host(self, host: str) -> bool:
+        return self._allowed_host(host) or self._allowed_domain(host)
+
     def _process_domain_name(self, domain_name: str):
         logger.info(f"DNS domain: {domain_name}")
         if domain_name == "":
             raise ValueError("empty domain name")
-        if domain_name in DomainAgent._ALLOWED_HOSTS():
+        if self._trusted_host(domain_name):
             return
         kb_entry = kb.Entry(title=DomainAgent._VULN_TITLE(),
                     risk_rating=DomainAgent._VULN_RISK(),
