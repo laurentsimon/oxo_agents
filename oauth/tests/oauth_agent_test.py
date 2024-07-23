@@ -22,6 +22,7 @@ def testOAuthAgent_whenRefreshTokenInHeadersToUntrustedHost_emitsVulnerabilityRe
     assert agent_mock[0].selector == "v3.report.vulnerability"
     assert agent_mock[0].data["risk_rating"] == oauth_agent._VULN_RISK().name
     assert agent_mock[0].data["title"] == oauth_agent._VULN_TITLE(oauth_agent._REFRESH_TYPE())
+    assert agent_mock[0].data["dna"] == oauth_agent._DNA(oauth_agent._REFRESH_TYPE(), refresh_untrusted_message.data['host'])
     assert agent_mock[0].data["technical_detail"] == oauth_agent._VULN_DETAIL(oauth_agent._REFRESH_TYPE(), refresh_untrusted_message.data['host'], refresh_untrusted_message.data['headers'])
 
 def testOAuthAgent_whenAccessTokenInHeadersToUntrustedHost_emitsVulnerabilityReport(
@@ -36,6 +37,7 @@ def testOAuthAgent_whenAccessTokenInHeadersToUntrustedHost_emitsVulnerabilityRep
     assert agent_mock[0].selector == "v3.report.vulnerability"
     assert agent_mock[0].data["risk_rating"] == oauth_agent._VULN_RISK().name
     assert agent_mock[0].data["title"] == oauth_agent._VULN_TITLE(oauth_agent._ACCESS_TYPE())
+    assert agent_mock[0].data["dna"] == oauth_agent._DNA(oauth_agent._ACCESS_TYPE(), access_untrusted_message.data['host'])
     assert agent_mock[0].data["technical_detail"] == oauth_agent._VULN_DETAIL(oauth_agent._ACCESS_TYPE(), access_untrusted_message.data['host'], access_untrusted_message.data['headers'])
 
 def testOAuthAgent_whenAccessTokenInHeadersToTrustedHost_noEmits(

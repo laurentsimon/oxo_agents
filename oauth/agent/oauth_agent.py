@@ -50,6 +50,10 @@ class OAuthAgent(
     @staticmethod
     def _ACCESS_TYPE():
         return "access"
+    @staticmethod
+    def _DNA(tok_type: str, host: str):
+        return f"{tok_type}|{host}"
+
 
     # NOTE: We must follow Agent's __init__() declaration.
     def __init__(
@@ -118,6 +122,7 @@ class OAuthAgent(
             self.report_vulnerability(
                 risk_rating=agent_report_vulnerability_mixin.RiskRating.HIGH,
                 technical_detail=OAuthAgent._VULN_DETAIL(tok_type, host, headers),
+                dna=OAuthAgent._DNA(tok_type, host),
                 entry=kb_entry,
             )        
         
