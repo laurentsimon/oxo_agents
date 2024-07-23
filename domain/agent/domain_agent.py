@@ -35,7 +35,7 @@ class DomainAgent(
         return f"We detected a DNS resolution request to {name}"
     @staticmethod
     def _VULN_RISK():
-        return "INFO"
+        return agent_report_vulnerability_mixin.RiskRating.INFO
 
     # NOTE: We must follow Agent's __init__() declaration.
     def __init__(
@@ -65,7 +65,7 @@ class DomainAgent(
         if message.selector != "v3.asset.domain_name":
             raise ValueError(f"unexpected selector: ${message.selector}")
         # https://github.com/Ostorlab/oxo/blob/3f184897523525a5053341fa42155e6e259b17b6/src/ostorlab/agent/message/proto/v3/asset/domain_name/domain_name.proto
-        self._process_domain_name(message.data["name"])
+        self._process_domain_name(message.data.get("name"))
         del message
 
     def _process_domain_name(self, domain_name: str):

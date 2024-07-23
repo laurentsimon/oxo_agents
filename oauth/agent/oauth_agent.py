@@ -35,7 +35,7 @@ class OAuthAgent(
         return f"We detected a {tok_type} OAuth token sent to {domain}"
     @staticmethod
     def _VULN_RISK():
-        return "HIGH"
+        return agent_report_vulnerability_mixin.RiskRating.HIGH
     @staticmethod
     def _ALLOWED_HOSTS():
         return ["www.googleapis.com"]
@@ -87,17 +87,17 @@ class OAuthAgent(
             return
 
         # Get the Authoriation header.
-        for header in message.data["headers"]:
-            name = header["name"]
-            value = header["value"]
-            if name == b"Authorization":
-                tok_type = OAuthAgent._REFRESH_TYPE() if b"1/" in value else OAuthAgent._ACCESS_TYPE() if b"ya29." in value else None
+        for header in message.data.get("headers"):
+            name = header["name"].decode()
+            value = header["value"].decode()
+            if name == "Authorization":
+                tok_type = OAuthAgent._REFRESH_TYPE() if "1/" in value else OAuthAgent._ACCESS_TYPE() if "ya29." in value else None
                 if tok_type is None:
                     continue
 
                 # We found some tokens.
                 kb_entry = kb.Entry(title=OAuthAgent._VULN_TITLE(tok_type, host),
-                            risk_rating=OAuthAgent._VULN_RISK(),
+                            risk_rating=OAuthAgent._VULN_RISK().name,
                             short_description='short_description',
                             description='description',
                             recommendation = 'some recommendation',
