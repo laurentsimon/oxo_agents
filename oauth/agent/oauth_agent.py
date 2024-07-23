@@ -31,8 +31,13 @@ class OAuthAgent(
     def _VULN_TITLE(tok_type: str):
         return f"[yt-sec][oauth]: {tok_type.capitalize()} OAuth to untrusted domain"
     @staticmethod
-    def _VULN_DETAIL(tok_type: str, domain: str):
-        return f"We detected a {tok_type} OAuth token sent to {domain}"
+    def _VULN_DETAIL(tok_type: str, host: str, headers: list[dict[str, str]]):
+        hdrs = ""
+        for h in headers:
+            name = h["name"].decode()
+            value = h["value"].decode()
+            hdrs += f"{name}: {value}\n"
+        return f"{tok_type.capitalize()} OAuth token:\nHost: {host}\nHeaders:\n{hdrs}"
     @staticmethod
     def _VULN_RISK():
         return agent_report_vulnerability_mixin.RiskRating.HIGH
@@ -87,7 +92,8 @@ class OAuthAgent(
             return
 
         # Get the Authoriation header.
-        for header in message.data.get("headers"):
+        headers = message.data.get("headers")
+        for header in headers:
             name = header["name"].decode()
             value = header["value"].decode()
             if name != "Authorization":
@@ -111,7 +117,7 @@ class OAuthAgent(
                         targeted_by_nation_state = False)
             self.report_vulnerability(
                 risk_rating=agent_report_vulnerability_mixin.RiskRating.HIGH,
-                technical_detail=OAuthAgent._VULN_DETAIL(tok_type, host),
+                technical_detail=OAuthAgent._VULN_DETAIL(tok_type, host, headers),
                 entry=kb_entry,
             )        
         
