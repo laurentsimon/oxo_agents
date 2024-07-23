@@ -1,0 +1,13 @@
+# https://github.com/Ostorlab/oxo/blob/main/src/ostorlab/agent/schema/agent_schema.json
+kind: Agent
+name: oauth_agent
+version: 0.0.1
+description: Agent responsible for detecting oauth leaks.
+in_selectors:
+  - v3.capture.http.request
+out_selectors:
+  - v3.report.vulnerability
+restart_policy: on-failure
+docker_file_path : Dockerfile
+docker_build_root : .
+#image: laurentsimon/oxo_ping_agent
