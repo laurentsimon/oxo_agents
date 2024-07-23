@@ -28,8 +28,8 @@ class OAuthAgent(
 ):
     """Domain agent."""
     @staticmethod
-    def _VULN_TITLE(tok_type: str, domain: str):
-        return f"[yt-sec][oauth]: {tok_type.capitalize()} OAuth sent to {domain}"
+    def _VULN_TITLE(tok_type: str):
+        return f"[yt-sec][oauth]: {tok_type.capitalize()} OAuth to untrusted domain"
     @staticmethod
     def _VULN_DETAIL(tok_type: str, domain: str):
         return f"We detected a {tok_type} OAuth token sent to {domain}"
@@ -96,7 +96,7 @@ class OAuthAgent(
                     continue
 
                 # We found some tokens.
-                kb_entry = kb.Entry(title=OAuthAgent._VULN_TITLE(tok_type, host),
+                kb_entry = kb.Entry(title=OAuthAgent._VULN_TITLE(tok_type),
                             risk_rating=OAuthAgent._VULN_RISK().name,
                             short_description='short_description',
                             description='description',
