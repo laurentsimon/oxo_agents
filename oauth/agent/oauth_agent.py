@@ -90,29 +90,30 @@ class OAuthAgent(
         for header in message.data.get("headers"):
             name = header["name"].decode()
             value = header["value"].decode()
-            if name == "Authorization":
-                tok_type = OAuthAgent._REFRESH_TYPE() if "1/" in value else OAuthAgent._ACCESS_TYPE() if "ya29." in value else None
-                if tok_type is None:
-                    continue
+            if name != "Authorization":
+                continue
+            tok_type = OAuthAgent._REFRESH_TYPE() if "1/" in value else OAuthAgent._ACCESS_TYPE() if "ya29." in value else None
+            if tok_type is None:
+                continue
 
-                # We found some tokens.
-                kb_entry = kb.Entry(title=OAuthAgent._VULN_TITLE(tok_type),
-                            risk_rating=OAuthAgent._VULN_RISK().name,
-                            short_description='short_description',
-                            description='description',
-                            recommendation = 'some recommendation',
-                            references = {'title': 'link to reference'},
-                            security_issue = False,
-                            privacy_issue = True,
-                            has_public_exploit = False,
-                            targeted_by_malware = False,
-                            targeted_by_ransomware = False,
-                            targeted_by_nation_state = False)
-                self.report_vulnerability(
-                    risk_rating=agent_report_vulnerability_mixin.RiskRating.HIGH,
-                    technical_detail=OAuthAgent._VULN_DETAIL(tok_type, host),
-                    entry=kb_entry,
-                )        
+            # We found some tokens.
+            kb_entry = kb.Entry(title=OAuthAgent._VULN_TITLE(tok_type),
+                        risk_rating=OAuthAgent._VULN_RISK().name,
+                        short_description='short_description',
+                        description='description',
+                        recommendation = 'some recommendation',
+                        references = {'title': 'link to reference'},
+                        security_issue = False,
+                        privacy_issue = True,
+                        has_public_exploit = False,
+                        targeted_by_malware = False,
+                        targeted_by_ransomware = False,
+                        targeted_by_nation_state = False)
+            self.report_vulnerability(
+                risk_rating=agent_report_vulnerability_mixin.RiskRating.HIGH,
+                technical_detail=OAuthAgent._VULN_DETAIL(tok_type, host),
+                entry=kb_entry,
+            )        
         
 if __name__ == "__main__":
     logger.info("starting OAuth agent ...")
