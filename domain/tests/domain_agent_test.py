@@ -24,7 +24,7 @@ def testDomainAgent_whenValidInMessage_emitsVulnerabilityReport(
     assert agent_mock[0].data["title"] == domain_agent._VULN_TITLE(message.data['name'])
     assert agent_mock[0].data["technical_detail"] == domain_agent._VULN_DETAIL(message.data['name'])
 
-def testDomainAgent_whenInvalidInMessageSelector_emitsVulnerabilityReport(
+def testDomainAgent_whenInvalidInMessageSelector_raisesValueError(
         mocker: plugin.MockerFixture,
         agent_mock: list[msg.Message],
         domain_agent: domain_agent.DomainAgent,
@@ -38,7 +38,7 @@ def testDomainAgent_whenInvalidInMessageSelector_emitsVulnerabilityReport(
     
     pytest.fail("Unexpected lack of exception (ValueError)")
 
-def testDomainAgent_whenEmptyNameMessageSelector_emitsVulnerabilityReport(
+def testDomainAgent_whenEmptyNameMessageSelector_raisesValueError(
         mocker: plugin.MockerFixture,
         agent_mock: list[msg.Message],
         domain_agent: domain_agent.DomainAgent,
