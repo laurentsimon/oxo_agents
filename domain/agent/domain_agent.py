@@ -28,8 +28,8 @@ class DomainAgent(
 ):
     """Domain agent."""
     @staticmethod
-    def _VULN_TITLE(name: str):
-        return f"[yt-sec][domain]: Domain {name}"
+    def _VULN_TITLE():
+        return f"[yt-sec][domain]: Untrusted domain"
     @staticmethod
     def _VULN_DETAIL(name: str):
         return f"We detected a DNS resolution request to {name}"
@@ -72,7 +72,7 @@ class DomainAgent(
         logger.info(f"DNS domain: {domain_name}")
         if domain_name == "":
             raise ValueError("empty domain name")
-        kb_entry = kb.Entry(title=DomainAgent._VULN_TITLE(domain_name),
+        kb_entry = kb.Entry(title=DomainAgent._VULN_TITLE(),
                     risk_rating=DomainAgent._VULN_RISK(),
                     short_description='short_description',
                     description='description',
