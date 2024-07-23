@@ -36,6 +36,9 @@ class DomainAgent(
     @staticmethod
     def _VULN_RISK():
         return agent_report_vulnerability_mixin.RiskRating.INFO
+    @staticmethod
+    def _ALLOWED_HOSTS():
+        return ["www.googleapis.com"]
 
     # NOTE: We must follow Agent's __init__() declaration.
     def __init__(
@@ -72,6 +75,8 @@ class DomainAgent(
         logger.info(f"DNS domain: {domain_name}")
         if domain_name == "":
             raise ValueError("empty domain name")
+        if domain_name in DomainAgent._ALLOWED_HOSTS():
+            return
         kb_entry = kb.Entry(title=DomainAgent._VULN_TITLE(),
                     risk_rating=DomainAgent._VULN_RISK(),
                     short_description='short_description',
