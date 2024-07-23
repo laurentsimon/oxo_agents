@@ -15,7 +15,7 @@ def create_refresh_untrusted_message() -> msg.Message:
     """
     selector = "v3.capture.http.request"
     msg_data = {
-        "host": "www.untrusted.com",
+        "host": "youtube.com.not",
         "headers": [
             {
                 "name": b"User-Agent",
@@ -43,7 +43,7 @@ def create_access_untrusted_message() -> msg.Message:
     """
     selector = "v3.capture.http.request"
     msg_data = {
-        "host": "www.untrusted.com",
+        "host": "youtube.com.not",
         "headers": [
             {
                 "name": b"User-Agent",
@@ -71,7 +71,7 @@ def create_refresh_trusted_message() -> msg.Message:
     """
     selector = "v3.capture.http.request"
     msg_data = {
-        "host": "www.googleapis.com",
+        "host": "any.youtube.com",
         "headers": [
             {
                 "name": b"User-Agent",
@@ -93,13 +93,42 @@ def create_refresh_trusted_message() -> msg.Message:
     }
     return msg.Message.from_data(selector, data=msg_data)
 
+@pytest.fixture(name="refresh_trusted_as_host_message")
+def create_refresh_trusted_as_host_message() -> msg.Message:
+    """Creates a dummy message of type v3.capture.http.request to be used by the agent for testing purposes.
+    """
+    selector = "v3.capture.http.request"
+    msg_data = {
+        "host": "youtube.com",
+        "headers": [
+            {
+                "name": b"User-Agent",
+                "value": b"Chromium v1.2.3",
+            },
+            {
+                "name": b"Authorization",
+                "value": b"random-value",
+            },
+            {
+                "name": b"Authorization",
+                "value": b"1/blabla",
+            },
+            {
+                "name": b"X-Name",
+                "value": b"other value",
+            },
+        ]
+    }
+    return msg.Message.from_data(selector, data=msg_data)
+
+
 @pytest.fixture(name="access_trusted_message")
 def create_access_trusted_message() -> msg.Message:
     """Creates a dummy message of type v3.capture.http.request to be used by the agent for testing purposes.
     """
     selector = "v3.capture.http.request"
     msg_data = {
-        "host": "www.googleapis.com",
+        "host": "any.youtube.com",
         "headers": [
             {
                 "name": b"User-Agent",
@@ -120,6 +149,35 @@ def create_access_trusted_message() -> msg.Message:
         ]
     }
     return msg.Message.from_data(selector, data=msg_data)
+
+@pytest.fixture(name="access_trusted_as_host_message")
+def create_access_trusted_as_host_message() -> msg.Message:
+    """Creates a dummy message of type v3.capture.http.request to be used by the agent for testing purposes.
+    """
+    selector = "v3.capture.http.request"
+    msg_data = {
+        "host": "youtube.com",
+        "headers": [
+            {
+                "name": b"User-Agent",
+                "value": b"Chromium v1.2.3",
+            },
+            {
+                "name": b"Authorization",
+                "value": b"random-value",
+            },
+            {
+                "name": b"Authorization",
+                "value": b"ya29.blabla",
+            },
+            {
+                "name": b"X-Name",
+                "value": b"other value",
+            },
+        ]
+    }
+    return msg.Message.from_data(selector, data=msg_data)
+
 
 @pytest.fixture(name="no_token_message")
 def create_message() -> msg.Message:

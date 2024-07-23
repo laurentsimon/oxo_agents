@@ -10,7 +10,7 @@ from pytest_mock import plugin
 
 from agent import oauth_agent
 
-def testOAuthAgent_whenRefreshTokenInHeadersToUntrustedHost_emitsVulnerabilityReport(
+def testOAuthAgent_whenRefreshTokenInHeadersToUntrusted_emitsVulnerabilityReport(
         mocker: plugin.MockerFixture,
         agent_mock: list[msg.Message],
         oauth_agent: oauth_agent.OAuthAgent,
@@ -25,7 +25,22 @@ def testOAuthAgent_whenRefreshTokenInHeadersToUntrustedHost_emitsVulnerabilityRe
     assert agent_mock[0].data["dna"] == oauth_agent._DNA(oauth_agent._REFRESH_TYPE(), refresh_untrusted_message.data['host'])
     assert agent_mock[0].data["technical_detail"] == oauth_agent._VULN_DETAIL(oauth_agent._REFRESH_TYPE(), refresh_untrusted_message.data['host'], refresh_untrusted_message.data['headers'])
 
-def testOAuthAgent_whenAccessTokenInHeadersToUntrustedHost_emitsVulnerabilityReport(
+def testOAuthAgent_whenRefreshTokenInHeadersToUntrusted_emitsVulnerabilityReport(
+        mocker: plugin.MockerFixture,
+        agent_mock: list[msg.Message],
+        oauth_agent: oauth_agent.OAuthAgent,
+        refresh_untrusted_message: msg.Message,
+) -> None:
+    oauth_agent.process(refresh_untrusted_message)
+
+    assert len(agent_mock) == 1
+    assert agent_mock[0].selector == "v3.report.vulnerability"
+    assert agent_mock[0].data["risk_rating"] == oauth_agent._VULN_RISK().name
+    assert agent_mock[0].data["title"] == oauth_agent._VULN_TITLE(oauth_agent._REFRESH_TYPE())
+    assert agent_mock[0].data["dna"] == oauth_agent._DNA(oauth_agent._REFRESH_TYPE(), refresh_untrusted_as_host_message.data['host'])
+    assert agent_mock[0].data["technical_detail"] == oauth_agent._VULN_DETAIL(oauth_agent._REFRESH_TYPE(), refresh_untrusted_as_host_message.data['host'], refresh_untrusted_message.data['headers'])
+
+def testOAuthAgent_whenAccessTokenInHeadersToUntrusted_emitsVulnerabilityReport(
         mocker: plugin.MockerFixture,
         agent_mock: list[msg.Message],
         oauth_agent: oauth_agent.OAuthAgent,
@@ -40,7 +55,22 @@ def testOAuthAgent_whenAccessTokenInHeadersToUntrustedHost_emitsVulnerabilityRep
     assert agent_mock[0].data["dna"] == oauth_agent._DNA(oauth_agent._ACCESS_TYPE(), access_untrusted_message.data['host'])
     assert agent_mock[0].data["technical_detail"] == oauth_agent._VULN_DETAIL(oauth_agent._ACCESS_TYPE(), access_untrusted_message.data['host'], access_untrusted_message.data['headers'])
 
-def testOAuthAgent_whenAccessTokenInHeadersToTrustedHost_noEmits(
+def testOAuthAgent_whenRefreshTokenInHeadersToUntrusted_emitsVulnerabilityReport(
+        mocker: plugin.MockerFixture,
+        agent_mock: list[msg.Message],
+        oauth_agent: oauth_agent.OAuthAgent,
+        access_untrusted_message: msg.Message,
+) -> None:
+    oauth_agent.process(access_untrusted_message)
+
+    assert len(agent_mock) == 1
+    assert agent_mock[0].selector == "v3.report.vulnerability"
+    assert agent_mock[0].data["risk_rating"] == oauth_agent._VULN_RISK().name
+    assert agent_mock[0].data["title"] == oauth_agent._VULN_TITLE(oauth_agent._ACCESS_TYPE())
+    assert agent_mock[0].data["dna"] == oauth_agent._DNA(oauth_agent._ACCESS_TYPE(), access_untrusted_message.data['host'])
+    assert agent_mock[0].data["technical_detail"] == oauth_agent._VULN_DETAIL(oauth_agent._ACCESS_TYPE(), access_untrusted_message.data['host'], access_untrusted_message.data['headers'])
+
+def testOAuthAgent_whenAccessTokenInHeadersToTrusted_noEmits(
         mocker: plugin.MockerFixture,
         agent_mock: list[msg.Message],
         oauth_agent: oauth_agent.OAuthAgent,
@@ -50,7 +80,7 @@ def testOAuthAgent_whenAccessTokenInHeadersToTrustedHost_noEmits(
 
     assert len(agent_mock) == 0
 
-def testOAuthAgent_whenRefreshTokenInHeadersToTrustedHost_noEmits(
+def testOAuthAgent_whenRefreshTokenInHeadersToTrusted_noEmits(
         mocker: plugin.MockerFixture,
         agent_mock: list[msg.Message],
         oauth_agent: oauth_agent.OAuthAgent,

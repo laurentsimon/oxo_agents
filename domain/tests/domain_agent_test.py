@@ -22,6 +22,7 @@ def testDomainAgent_whenUntrustedHostMessage_emitsVulnerabilityReport(
     assert agent_mock[0].selector == "v3.report.vulnerability"
     assert agent_mock[0].data["risk_rating"] == domain_agent._VULN_RISK().name
     assert agent_mock[0].data["title"] == domain_agent._VULN_TITLE()
+    assert agent_mock[0].data["dna"] == domain_agent._DNA(untrusted_host_message.data.get("name"))
     assert agent_mock[0].data["technical_detail"] == domain_agent._VULN_DETAIL(untrusted_host_message.data.get("name"))
 
 def testDomainAgent_whenUntrustedDomainMessage_emitsVulnerabilityReport(
@@ -36,6 +37,7 @@ def testDomainAgent_whenUntrustedDomainMessage_emitsVulnerabilityReport(
     assert agent_mock[0].selector == "v3.report.vulnerability"
     assert agent_mock[0].data["risk_rating"] == domain_agent._VULN_RISK().name
     assert agent_mock[0].data["title"] == domain_agent._VULN_TITLE()
+    assert agent_mock[0].data["dna"] == domain_agent._DNA(untrusted_domain_message.data.get("name"))
     assert agent_mock[0].data["technical_detail"] == domain_agent._VULN_DETAIL(untrusted_domain_message.data.get("name"))
 
 def testDomainAgent_whenTrustedDomainMessage_noEmits(

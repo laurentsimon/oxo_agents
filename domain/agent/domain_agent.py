@@ -42,6 +42,9 @@ class DomainAgent(
     @staticmethod
     def _ALLOWED_DOMAINS():
         return ["google.com", "googleapis.com", "youtube.com", "googleusercontent.com"]
+    @staticmethod
+    def _DNA(host: str):
+        return f"{host}"
 
     # NOTE: We must follow Agent's __init__() declaration.
     def __init__(
@@ -110,6 +113,7 @@ class DomainAgent(
             risk_rating=agent_report_vulnerability_mixin.RiskRating.INFO,
             technical_detail=DomainAgent._VULN_DETAIL(domain_name),
             entry=kb_entry,
+            dna=DomainAgent._DNA(domain_name),
         )        
         
 if __name__ == "__main__":

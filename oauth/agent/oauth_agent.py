@@ -43,7 +43,10 @@ class OAuthAgent(
         return agent_report_vulnerability_mixin.RiskRating.HIGH
     @staticmethod
     def _ALLOWED_HOSTS():
-        return ["www.googleapis.com"]
+        return []
+    @staticmethod
+    def _ALLOWED_DOMAINS():
+        return ["google.com", "googleapis.com", "youtube.com", "googleusercontent.com"]
     @staticmethod
     def _REFRESH_TYPE():
         return "refresh"
@@ -86,13 +89,27 @@ class OAuthAgent(
         self._process_http_request(message)
         del message
 
+    def _allowed_domain(self, host: str) -> bool:
+        for allowed in OAuthAgent._ALLOWED_DOMAINS():
+            if host == allowed:
+                return True
+            if host.endswith(f".{allowed}"):
+                return True
+        return False
+
+    def _allowed_host(self, host: str) -> bool:
+        return host in OAuthAgent._ALLOWED_HOSTS()
+
+    def _trusted_host(self, host: str) -> bool:
+        return self._allowed_host(host) or self._allowed_domain(host)
+
     def _process_http_request(self, message: m.Message):
         if "host" not in message.data:
             raise ValueError("no host in request")
         host = message.data["host"]
 
         # Check the host.
-        if host in OAuthAgent._ALLOWED_HOSTS():
+        if self._trusted_host(host):
             return
 
         # Get the Authoriation header.
