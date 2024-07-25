@@ -5,6 +5,7 @@ import enum
 from rich import logging as rich_logging
 import time
 import struct
+import urllib.parse
 
 from ostorlab.agent import agent, definitions as agent_definitions
 from ostorlab.runtimes import definitions as runtime_definitions
@@ -62,6 +63,17 @@ class OAuthAgent(
     @staticmethod
     def _DNA(tok_type:TokenType, host:str, location:LocationType):
         return f"{tok_type.name}|{host}|{location.name}"
+    @staticmethod
+    def _DECODE_CONTENT(method_:str, _content:str) -> str:
+        decoded_content = _content
+        m = method_.upper()
+        match m:
+            case "GET" | "HEAD":
+                # NOTE: Convert to a string to help debuggging.
+                decoded_content = str(urllib.parse.parse_qs(_content))
+            case _:
+                pass
+        return decoded_content
 
     # NOTE: We must follow Agent's __init__() declaration.
     def __init__(
@@ -142,11 +154,12 @@ class OAuthAgent(
                 continue
             self._create_vuln(tok_type, host, headers=headers_)
 
-    def _process_content(self, host:str, content_:str):
-        tok_type = self._oauth_type(content_)
+    def _process_content(self, host:str, method_:str, content_:str):
+        dcontent = OAuthAgent._DECODE_CONTENT(method_, content_)
+        tok_type = self._oauth_type(dcontent)
         if tok_type == OAuthAgent.TokenType.NONE:
             return
-        self._create_vuln(tok_type, host, content=content_)
+        self._create_vuln(tok_type, host, content=dcontent)
 
     def _process_http_request(self, message: m.Message):
         if "host" not in message.data:
@@ -157,7 +170,7 @@ class OAuthAgent(
         if self._trusted_host(host):
             return
         self._process_headers(host, message.data.get("headers"))
-        self._process_content(host, message.data.get("content").decode())
+        self._process_content(host, message.data.get("method"), message.data.get("content").decode())
         
         
 if __name__ == "__main__":

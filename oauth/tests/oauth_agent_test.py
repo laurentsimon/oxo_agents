@@ -49,7 +49,43 @@ def testOAuthAgent_whenRefreshTokenInContentToUntrusted_emitsVulnerabilityReport
 
     tok_type = oauth_agent.TokenType.REFRESH
     host = msg.data["host"]
-    content = msg.data['content'].decode()
+    content = oauth_agent._DECODE_CONTENT(msg.data["method"], msg.data['content'].decode())
+    loc = oauth_agent.LocationType.CONTENT
+
+    _helperValidate(agent_mock[0], oauth_agent, tok_type, host, loc, None, content)
+
+def testOAuthAgent_whenRefreshTokenInContentGetMethodToUntrusted_emitsVulnerabilityReport(
+        mocker: plugin.MockerFixture,
+        agent_mock: list[msg.Message],
+        oauth_agent: oauth_agent.OAuthAgent,
+        refresh_untrusted_content_get_message: msg.Message,
+) -> None:
+    msg = refresh_untrusted_content_get_message
+    oauth_agent.process(msg)
+
+    assert len(agent_mock) == 1
+
+    tok_type = oauth_agent.TokenType.REFRESH
+    host = msg.data["host"]
+    content = oauth_agent._DECODE_CONTENT(msg.data["method"], msg.data['content'].decode())
+    loc = oauth_agent.LocationType.CONTENT
+
+    _helperValidate(agent_mock[0], oauth_agent, tok_type, host, loc, None, content)
+
+def testOAuthAgent_whenAccessTokenInContentGetMethodToUntrusted_emitsVulnerabilityReport(
+        mocker: plugin.MockerFixture,
+        agent_mock: list[msg.Message],
+        oauth_agent: oauth_agent.OAuthAgent,
+        access_untrusted_content_get_message: msg.Message,
+) -> None:
+    msg = access_untrusted_content_get_message
+    oauth_agent.process(msg)
+
+    assert len(agent_mock) == 1
+
+    tok_type = oauth_agent.TokenType.ACCESS
+    host = msg.data["host"]
+    content = oauth_agent._DECODE_CONTENT(msg.data["method"], msg.data['content'].decode())
     loc = oauth_agent.LocationType.CONTENT
 
     _helperValidate(agent_mock[0], oauth_agent, tok_type, host, loc, None, content)
@@ -103,7 +139,7 @@ def testOAuthAgent_whenAccessTokenInContentToUntrusted_emitsVulnerabilityReport(
 
     tok_type = oauth_agent.TokenType.ACCESS
     host = msg.data["host"]
-    content = msg.data['content'].decode()
+    content = oauth_agent._DECODE_CONTENT(msg.data["method"], msg.data['content'].decode())
     loc = oauth_agent.LocationType.CONTENT
 
     _helperValidate(agent_mock[0], oauth_agent, tok_type, host, loc, None, content)
