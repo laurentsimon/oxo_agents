@@ -164,7 +164,7 @@ class OAuthAgent(
     def _process_http_request(self, message: m.Message):
         if "host" not in message.data:
             raise ValueError("no host in request")
-        host = message.data["host"]
+        host = message.data.get("host")
 
         # Check the host.
         if self._trusted_host(host):

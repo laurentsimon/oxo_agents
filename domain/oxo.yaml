@@ -9,5 +9,5 @@ out_selectors:
   - v3.report.vulnerability
 restart_policy: on-failure
 docker_file_path : Dockerfile
-docker_build_root : .
+docker_build_root : ./domain/
 #image: laurentsimon/oxo_ping_agent
