@@ -10,6 +10,13 @@ from pytest_mock import plugin
 
 from agent import domain_agent
 
+def _helperValidate(m:msg.Message, domain_agent: domain_agent.DomainAgent, host:str):
+    assert m.selector == "v3.report.vulnerability"
+    assert m.data["risk_rating"] == domain_agent._VULN_RISK().name
+    assert m.data["title"] == domain_agent._VULN_TITLE()
+    assert m.data["dna"] == domain_agent._DNA(host)
+    assert m.data["technical_detail"] == domain_agent._VULN_DETAIL(host)
+
 def testDomainAgent_whenUntrustedHostMessage_emitsVulnerabilityReport(
         mocker: plugin.MockerFixture,
         agent_mock: list[msg.Message],
@@ -17,13 +24,9 @@ def testDomainAgent_whenUntrustedHostMessage_emitsVulnerabilityReport(
         untrusted_host_message: msg.Message,
 ) -> None:
     domain_agent.process(untrusted_host_message)
-
     assert len(agent_mock) == 1
-    assert agent_mock[0].selector == "v3.report.vulnerability"
-    assert agent_mock[0].data["risk_rating"] == domain_agent._VULN_RISK().name
-    assert agent_mock[0].data["title"] == domain_agent._VULN_TITLE()
-    assert agent_mock[0].data["dna"] == domain_agent._DNA(untrusted_host_message.data.get("name"))
-    assert agent_mock[0].data["technical_detail"] == domain_agent._VULN_DETAIL(untrusted_host_message.data.get("name"))
+    host = untrusted_host_message.data.get("name")
+    _helperValidate(agent_mock[0], domain_agent, host)
 
 def testDomainAgent_whenUntrustedDomainMessage_emitsVulnerabilityReport(
         mocker: plugin.MockerFixture,
@@ -32,13 +35,9 @@ def testDomainAgent_whenUntrustedDomainMessage_emitsVulnerabilityReport(
         untrusted_domain_message: msg.Message,
 ) -> None:
     domain_agent.process(untrusted_domain_message)
-
     assert len(agent_mock) == 1
-    assert agent_mock[0].selector == "v3.report.vulnerability"
-    assert agent_mock[0].data["risk_rating"] == domain_agent._VULN_RISK().name
-    assert agent_mock[0].data["title"] == domain_agent._VULN_TITLE()
-    assert agent_mock[0].data["dna"] == domain_agent._DNA(untrusted_domain_message.data.get("name"))
-    assert agent_mock[0].data["technical_detail"] == domain_agent._VULN_DETAIL(untrusted_domain_message.data.get("name"))
+    host = untrusted_domain_message.data.get("name")
+    _helperValidate(agent_mock[0], domain_agent, host)
 
 def testDomainAgent_whenTrustedDomainMessage_noEmits(
         mocker: plugin.MockerFixture,
@@ -47,6 +46,7 @@ def testDomainAgent_whenTrustedDomainMessage_noEmits(
         trusted_domain_message: msg.Message,
 ) -> None:
     domain_agent.process(trusted_domain_message)
+    assert len(agent_mock) == 0
 
 def testDomainAgent_whenTrustedDomainAsHostMessage_noEmits(
         mocker: plugin.MockerFixture,
@@ -55,6 +55,7 @@ def testDomainAgent_whenTrustedDomainAsHostMessage_noEmits(
         trusted_domain_as_host_message: msg.Message,
 ) -> None:
     domain_agent.process(trusted_domain_as_host_message)
+    assert len(agent_mock) == 0
 
 def testDomainAgent_whenInvalidInMessageSelector_raisesValueError(
         mocker: plugin.MockerFixture,

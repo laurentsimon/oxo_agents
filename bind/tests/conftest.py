@@ -53,6 +53,12 @@ def create_bind_instrumented(frame_create_fn):
     msg_data = {"frames": frames}
     return msg.Message.from_data(selector, data=msg_data)
 
+@pytest.fixture(name="invalid_selector_message")
+def create_invalid_selector_message() -> msg.Message:
+    selector = "v3.asset.domain_name"
+    msg_data = {"name": "any.googleapis.com.not"}
+    return msg.Message.from_data(selector, data=msg_data)
+
 @pytest.fixture(name="no_bind_message")
 def create_no_bind_message() -> msg.Message:
     selector = "v3.capture.stack_trace"

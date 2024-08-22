@@ -49,3 +49,17 @@ def testBindAgent_whenBindNativeInstrumentedframeFrameMessage_emitsVulnerability
 
     assert len(agent_mock) == 1
     _helperValidate(agent_mock[0], bind_agent, msg.data['frames'])
+
+def testBindAgent_whenInvalidInMessageSelector_raisesValueError(
+        mocker: plugin.MockerFixture,
+        agent_mock: list[msg.Message],
+        bind_agent: bind_agent.BindAgent,
+        invalid_selector_message: msg.Message,
+) -> None:
+
+    try:
+        bind_agent.process(invalid_selector_message)
+    except ValueError:
+        return
+    
+    pytest.fail("Unexpected exception (ValueError)")
