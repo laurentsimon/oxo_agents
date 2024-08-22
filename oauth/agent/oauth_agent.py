@@ -137,7 +137,7 @@ class OAuthAgent(
                         targeted_by_ransomware = False,
                         targeted_by_nation_state = False)
         self.report_vulnerability(
-            risk_rating=agent_report_vulnerability_mixin.RiskRating.HIGH,
+            risk_rating=OAuthAgent._VULN_RISK(),
             technical_detail=OAuthAgent._VULN_DETAIL(tok_type, host, headers, content),
             dna=OAuthAgent._DNA(tok_type, host, OAuthAgent.LocationType.HEADER if content is None else OAuthAgent.LocationType.CONTENT),
             entry=kb_entry,

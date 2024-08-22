@@ -1,13 +1,12 @@
 # https://github.com/Ostorlab/oxo/blob/main/src/ostorlab/agent/schema/agent_schema.json
 kind: Agent
-name: domain_agent
+name: bind_agent
 version: 0.0.4
-description: Agent responsible for recording domains we connect to.
+description: Agent responsible for recording calls to bind().
 in_selectors:
-  - v3.asset.domain_name
+  - v3.capture.stack_trace
 out_selectors:
   - v3.report.vulnerability
 restart_policy: on-failure
 docker_file_path : Dockerfile
-docker_build_root : ./domain/
-#image: laurentsimon/oxo_ping_agent
+docker_build_root : ./bind/

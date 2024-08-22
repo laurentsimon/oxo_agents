@@ -98,7 +98,7 @@ class DomainAgent(
         if self._trusted_host(domain_name):
             return
         kb_entry = kb.Entry(title=DomainAgent._VULN_TITLE(),
-                    risk_rating=DomainAgent._VULN_RISK(),
+                    risk_rating=DomainAgent._VULN_RISK().name,
                     short_description='short_description',
                     description='description',
                     recommendation = 'some recommendation',
@@ -110,7 +110,7 @@ class DomainAgent(
                     targeted_by_ransomware = False,
                     targeted_by_nation_state = False)
         self.report_vulnerability(
-            risk_rating=agent_report_vulnerability_mixin.RiskRating.INFO,
+            risk_rating=DomainAgent._VULN_RISK(),
             technical_detail=DomainAgent._VULN_DETAIL(domain_name),
             entry=kb_entry,
             dna=DomainAgent._DNA(domain_name),

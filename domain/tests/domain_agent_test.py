@@ -68,7 +68,7 @@ def testDomainAgent_whenInvalidInMessageSelector_raisesValueError(
     except ValueError:
         return
     
-    pytest.fail("Unexpected lack of exception (ValueError)")
+    pytest.fail("Unexpected exception (ValueError)")
 
 def testDomainAgent_whenEmptyNameMessageSelector_raisesValueError(
         mocker: plugin.MockerFixture,
@@ -82,5 +82,5 @@ def testDomainAgent_whenEmptyNameMessageSelector_raisesValueError(
     except ValueError:
         return
     
-    pytest.fail("Unexpected lack of exception (ValueError)")
+    pytest.fail("Unexpected exception (ValueError)")
 

@@ -1,4 +1,4 @@
-"""Pytest fixtures for the domains agent."""
+"""Pytest fixtures for the domain agent."""
 
 import pathlib
 

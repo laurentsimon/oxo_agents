@@ -227,7 +227,7 @@ def testOAuthAgent_whenInvalidInMessageSelector_raisesValueError(
     except ValueError:
         return
     
-    pytest.fail("Unexpected lack of exception (ValueError)")
+    pytest.fail("Unexpected exception (ValueError)")
 
 def testOAuthAgent_whenInvalidInMessageSelector_raisesValueError(
         mocker: plugin.MockerFixture,
@@ -241,4 +241,4 @@ def testOAuthAgent_whenInvalidInMessageSelector_raisesValueError(
     except ValueError:
         return
     
-    pytest.fail("Unexpected lack of exception (ValueError)")
+    pytest.fail("Unexpected exception (ValueError)")
